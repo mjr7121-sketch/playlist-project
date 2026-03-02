@@ -21,17 +21,20 @@ export class PlaylistProject extends DDDSuper(I18NMixin(LitElement)) {
   constructor() {
     super();
     this.title = "";
+    this.index = 0;
     this.t = this.t || {};
     this.t = {
       ...this.t,
       title: "Title",
     };
+
+    /*
     this.registerLocalization({
       context: this,
       localesPath:
         new URL("./locales/playlist-project.ar.json", import.meta.url).href +
         "/../",
-    });
+    }*//*);*/
   }
 
   // Lit reactive properties
@@ -39,7 +42,23 @@ export class PlaylistProject extends DDDSuper(I18NMixin(LitElement)) {
     return {
       ...super.properties,
       title: { type: String },
+      index: {type: Number, reflect: true}
     };
+  }
+
+  updated(changedProperties){
+    if(changedProperties.has("index")){
+      const slides = this.querySelectorAll("playlist-slide");
+
+      for(let i = 0; i < slides.length; i++){
+        if(i == this.index){
+          slides[i].style.display = "block";
+        } else{
+          slides[i].style.display = "none";
+        }
+      }
+    }
+
   }
 
   // Lit scoped styles
@@ -59,7 +78,18 @@ export class PlaylistProject extends DDDSuper(I18NMixin(LitElement)) {
       h3 span {
         font-size: var(--playlist-project-label-font-size, var(--ddd-font-size-s));
       }
+      
     `];
+  }
+  nextSlide(){
+    if(this.index < 3){
+      this.index++;
+    }
+  }
+  previousSlide(){
+    if(this.index > 0){
+      this.index--;
+    }
   }
 
   // Lit render the HTML
@@ -67,6 +97,10 @@ export class PlaylistProject extends DDDSuper(I18NMixin(LitElement)) {
     return html`
 <div class="wrapper">
   <h3><span>${this.t.title}:</span> ${this.title}</h3>
+
+  <button @click="${this.previousSlide}">Previous</button>
+  <button @click="${this.nextSlide}">Next</button>
+  
   <slot></slot>
 </div>`;
   }
@@ -74,10 +108,11 @@ export class PlaylistProject extends DDDSuper(I18NMixin(LitElement)) {
   /**
    * haxProperties integration via file reference
    */
+  /*
   static get haxProperties() {
     return new URL(`./lib/${this.tag}.haxProperties.json`, import.meta.url)
       .href;
-  }
+  }*/
 }
 
 globalThis.customElements.define(PlaylistProject.tag, PlaylistProject);
